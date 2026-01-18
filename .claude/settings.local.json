@@ -9,7 +9,12 @@
       "Bash(npx prisma migrate:*)",
       "Bash(curl:*)",
       "Bash(node:*)",
-      "Bash(npx prisma generate:*)"
+      "Bash(npx prisma generate:*)",
+      "Bash(copy:*)",
+      "Bash(powershell -Command \"Copy-Item prisma\\\\schema.production.prisma prisma\\\\schema.prisma -Force\")",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git push:*)"
     ]
   }
 }

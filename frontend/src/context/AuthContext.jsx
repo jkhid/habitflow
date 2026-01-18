@@ -48,7 +48,19 @@ export const AuthProvider = ({ children }) => {
       setUser(user);
       return { success: true };
     } catch (err) {
-      const message = err.response?.data?.error || 'Login failed';
+      let message = 'Login failed';
+
+      if (err.response?.data) {
+        const data = err.response.data;
+        if (data.details && Array.isArray(data.details)) {
+          message = data.details.map(d => d.msg).join('. ');
+        } else if (data.error) {
+          message = data.error;
+        }
+      } else if (err.message === 'Network Error') {
+        message = 'Cannot connect to server. Please try again later.';
+      }
+
       setError(message);
       return { success: false, error: message };
     }
@@ -64,7 +76,20 @@ export const AuthProvider = ({ children }) => {
       setUser(user);
       return { success: true };
     } catch (err) {
-      const message = err.response?.data?.error || 'Signup failed';
+      let message = 'Signup failed';
+
+      if (err.response?.data) {
+        const data = err.response.data;
+        // Handle validation errors with details
+        if (data.details && Array.isArray(data.details)) {
+          message = data.details.map(d => d.msg).join('. ');
+        } else if (data.error) {
+          message = data.error;
+        }
+      } else if (err.message === 'Network Error') {
+        message = 'Cannot connect to server. Please try again later.';
+      }
+
       setError(message);
       return { success: false, error: message };
     }
