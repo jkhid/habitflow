@@ -1,0 +1,24 @@
+databases:
+  - name: habitflow-db
+    databaseName: habitflow
+    user: habitflow
+    plan: free
+
+services:
+  - type: web
+    name: habitflow-api
+    runtime: node
+    plan: free
+    buildCommand: npm install && npm run build
+    startCommand: npm run db:migrate:prod && npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        fromDatabase:
+          name: habitflow-db
+          property: connectionString
+      - key: JWT_SECRET
+        generateValue: true
+      - key: CORS_ORIGIN
+        sync: false

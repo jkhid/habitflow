@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm install:*)",
+      "Bash(npm run build:*)",
+      "Bash(tree:*)",
+      "Bash(dir /s /b \"C:\\\\Users\\\\jamal\\\\OneDrive\\\\Desktop\\\\Habits\\\\frontend\")",
+      "Bash(dir:*)",
+      "Bash(npx prisma migrate:*)",
+      "Bash(curl:*)",
+      "Bash(node:*)",
+      "Bash(npx prisma generate:*)"
+    ]
+  }
+}

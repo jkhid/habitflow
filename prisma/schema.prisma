@@ -1,0 +1,105 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id              String   @id @default(uuid())
+  email           String   @unique
+  username        String   @unique
+  password        String
+  profilePicture  String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  // Password reset
+  resetToken       String?
+  resetTokenExpiry DateTime?
+
+  // Relations
+  habits          Habit[]
+  checkIns        CheckIn[]
+  cheersGiven     Cheer[]       @relation("CheersGiven")
+  cheersReceived  Cheer[]       @relation("CheersReceived")
+
+  // Friend relations
+  sentRequests     Friendship[] @relation("SentRequests")
+  receivedRequests Friendship[] @relation("ReceivedRequests")
+
+  @@map("users")
+}
+
+model Friendship {
+  id          String   @id @default(uuid())
+  requesterId String
+  addresseeId String
+  status      String   @default("PENDING") // PENDING, ACCEPTED, DECLINED
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  requester   User @relation("SentRequests", fields: [requesterId], references: [id], onDelete: Cascade)
+  addressee   User @relation("ReceivedRequests", fields: [addresseeId], references: [id], onDelete: Cascade)
+
+  @@unique([requesterId, addresseeId])
+  @@map("friendships")
+}
+
+model Habit {
+  id            String    @id @default(uuid())
+  userId        String
+  name          String
+  description   String?
+  frequencyGoal Int       @default(1) // times per week
+  isActive      Boolean   @default(true)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  // Streak tracking
+  currentStreak Int       @default(0)
+  longestStreak Int       @default(0)
+  lastCheckIn   DateTime?
+
+  // Relations
+  user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  checkIns CheckIn[]
+
+  @@map("habits")
+}
+
+model CheckIn {
+  id        String   @id @default(uuid())
+  habitId   String
+  userId    String
+  date      DateTime
+  note      String?
+  createdAt DateTime @default(now())
+
+  // Relations
+  habit  Habit   @relation(fields: [habitId], references: [id], onDelete: Cascade)
+  user   User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  cheers Cheer[]
+
+  @@unique([habitId, date])
+  @@map("check_ins")
+}
+
+model Cheer {
+  id        String   @id @default(uuid())
+  checkInId String
+  giverId   String
+  receiverId String
+  emoji     String   @default("🎉")
+  createdAt DateTime @default(now())
+
+  // Relations
+  checkIn  CheckIn @relation(fields: [checkInId], references: [id], onDelete: Cascade)
+  giver    User    @relation("CheersGiven", fields: [giverId], references: [id], onDelete: Cascade)
+  receiver User    @relation("CheersReceived", fields: [receiverId], references: [id], onDelete: Cascade)
+
+  @@unique([checkInId, giverId])
+  @@map("cheers")
+}
